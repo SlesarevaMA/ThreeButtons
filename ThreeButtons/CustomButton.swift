@@ -12,63 +12,68 @@ private enum Metrics {
     static let cornerRadius: CGFloat = 10
     static let imagePadding: CGFloat = 8
     
-    static let backgroundColor: UIColor = .systemBlue
-    static let tintColor: UIColor = .white
+    static let normalBackgroundColor: UIColor = .systemBlue
+    static let dimmedBackgroundColor: UIColor = .systemGray2
+
+    static let dimmedTitleColor: UIColor = .systemGray3
 }
 
 final class CustomButton: UIButton {
-    
-    override func tintColorDidChange() {
-        super.tintColorDidChange()
         
-        
-    }
-    
-    private var touchDownAnimator: UIViewPropertyAnimator?
-    private var touchUpAnimator: UIViewPropertyAnimator?
+    private let touchDownAnimator: UIViewPropertyAnimator
+    private let touchUpAnimator: UIViewPropertyAnimator
     
     override init(frame: CGRect) {
-        super.init(frame: frame)
+        touchDownAnimator = UIViewPropertyAnimator(duration: 0.1, curve: .easeInOut)
+        touchUpAnimator = UIViewPropertyAnimator(duration: 0.1, curve: .easeInOut)
         
-        configuration = .plain()
+        super.init(frame: frame)
+
+        configuration = .filled()
         configuration?.contentInsets = Metrics.contentInsets
         configuration?.imagePlacement = .trailing
         configuration?.imagePadding = Metrics.imagePadding
-        setImage(UIImage(systemName: "arrow.right.circle.fill"), for: .normal)
-        tintColor = Metrics.tintColor
-        
-        backgroundColor = Metrics.backgroundColor
-        layer.cornerRadius = Metrics.cornerRadius
+        configuration?.image = UIImage(systemName: "arrow.forward.circle.fill")
+
         addTarget(self, action: #selector(touchDown), for: .touchDown)
         addTarget(self, action: #selector(touchUp), for: .touchUpInside)
-        
-        touchDownAnimator = UIViewPropertyAnimator(duration: 0.1, curve: .easeInOut)
-        touchUpAnimator = UIViewPropertyAnimator(duration: 0.1, curve: .easeInOut)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
         
-    @objc func touchDown() {
-        touchUpAnimator?.stopAnimation(true)
-        touchUpAnimator?.finishAnimation(at: .current)
+    override func tintColorDidChange() {
+        super.tintColorDidChange()
         
-        touchDownAnimator?.addAnimations {
+        if tintAdjustmentMode == .dimmed {
+            configuration?.background.backgroundColor = Metrics.dimmedBackgroundColor
+            titleLabel?.textColor = Metrics.dimmedTitleColor
+            imageView?.tintColor = Metrics.dimmedTitleColor
+        } else {
+            configuration?.background.backgroundColor = Metrics.normalBackgroundColor
+        }
+    }
+        
+    @objc func touchDown() {
+        touchUpAnimator.stopAnimation(true)
+        touchUpAnimator.finishAnimation(at: .current)
+        
+        touchDownAnimator.addAnimations {
             self.transform = CGAffineTransformMakeScale(0.9, 0.9)
         }
         
-        touchDownAnimator?.startAnimation()
+        touchDownAnimator.startAnimation()
     }
     
     @objc func touchUp() {
-        touchDownAnimator?.stopAnimation(true)
-        touchDownAnimator?.finishAnimation(at: .current)
+        touchDownAnimator.stopAnimation(true)
+        touchDownAnimator.finishAnimation(at: .current)
         
-        touchUpAnimator?.addAnimations {
+        touchUpAnimator.addAnimations {
             self.transform = .identity
         }
         
-        touchUpAnimator?.startAnimation()
+        touchUpAnimator.startAnimation()
     }
 }

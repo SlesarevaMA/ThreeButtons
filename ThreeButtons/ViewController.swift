@@ -65,7 +65,6 @@ class ViewController: UIViewController {
         secondButton.setTitle("Second Medium Button", for: .normal)
         thirdButton.setTitle("Third", for: .normal)
         
-        
         thirdButton.addTarget(self, action: #selector(thirdButtonTapped), for: .touchUpInside)
     }
     
